@@ -19,7 +19,7 @@
         
         .time-label {
             color: white;
-            font-size: 20px;
+            font-size: 14px;
             margin-top: 10px;
         }
         
@@ -37,20 +37,17 @@
 <body>
     <div id="local-time">
         <div class="time-label">Local Time</div>
-        <div id="local-clock"></div>
         <div id="local-date"></div>
-        
+        <div id="local-clock"></div>
     </div>
     <div id="utc-time">
         <div class="time-label">UTC Time</div>
-        <div id="utc-clock"></div>
         <div id="utc-date"></div>
-        
-        
+        <div id="utc-clock"></div>
     </div>
 
     <hr>
-    <p>Made By Henry0005 </p>
+    <p>Made by Henry0005</p>
 
     <script>
         function updateClock() {
@@ -64,14 +61,17 @@
             var minutes = now.getMinutes();
             var seconds = now.getSeconds();
 
-            var time = hours + ":" + addZero(minutes) + ":" + addZero(seconds);
-            var date = addZero(day) + "/" + addZero(month) + "/" + year;
-            var utc = "UTC " + now.toUTCString();
+            var localTime = hours + ":" + addZero(minutes) + ":" + addZero(seconds);
+            var localDate = addZero(day) + "/" + addZero(month) + "/" + year;
 
-            document.getElementById("local-clock").innerHTML = time;
-            document.getElementById("local-date").innerHTML = date;
-            document.getElementById("utc-clock").innerHTML = time;
-            document.getElementById("utc-date").innerHTML = date;
+            var utcTime = new Date().toUTCString();
+            utcTime = utcTime.slice(-12, -4);
+
+            document.getElementById("local-clock").innerHTML = localTime;
+            document.getElementById("local-date").innerHTML = localDate;
+
+            document.getElementById("utc-clock").innerHTML = utcTime;
+            document.getElementById("utc-date").innerHTML = localDate;
         }
 
         function addZero(value) {
