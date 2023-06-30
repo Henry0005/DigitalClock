@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body {
+            background-color: black;
+            color: white;
+            text-align: center;
+            font-family: Arial, sans-serif;
+            font-size: 18px;
+        }
+        
+        #local-time {
+            font-size: 25px;
+            margin-bottom: 5px;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .time-label {
+            color: white;
+            font-size: 20px;
+            margin-top: 10px;
+        }
+        
+        #utc-time {
+            font-size: 25px;
+            margin-top: 5px;
+        }
+
+        hr {
+            width: 80%;
+            margin: 20px auto;
+        }
+    </style>
+</head>
+<body>
+    <div id="local-time">
+        <div class="time-label">Local Time</div>
+        <div id="local-clock"></div>
+        <div id="local-date"></div>
+        
+    </div>
+    <div id="utc-time">
+        <div class="time-label">UTC Time</div>
+        <div id="utc-clock"></div>
+        <div id="utc-date"></div>
+        
+        
+    </div>
+
+    <hr>
+    <p>Made By Henry0005 </p>
+
+    <script>
+        function updateClock() {
+            var now = new Date();
+
+            var day = now.getDate();
+            var month = now.getMonth() + 1;
+            var year = now.getFullYear();
+
+            var hours = now.getHours();
+            var minutes = now.getMinutes();
+            var seconds = now.getSeconds();
+
+            var time = hours + ":" + addZero(minutes) + ":" + addZero(seconds);
+            var date = addZero(day) + "/" + addZero(month) + "/" + year;
+            var utc = "UTC " + now.toUTCString();
+
+            document.getElementById("local-clock").innerHTML = time;
+            document.getElementById("local-date").innerHTML = date;
+            document.getElementById("utc-clock").innerHTML = time;
+            document.getElementById("utc-date").innerHTML = date;
+        }
+
+        function addZero(value) {
+            if (value < 10) {
+                return "0" + value;
+            } else {
+                return value;
+            }
+        }
+
+        setInterval(updateClock, 1000);
+    </script>
+</body>
+</html>
