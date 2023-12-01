@@ -4,4 +4,4 @@ I've developed a simple and brief HTML code for a digital clock, you can see the
 
 Em Português 🇧🇷
 
-Desenvolvi um simples e breve código em HTML para um relógio digital, você pode ver o horário no UTC e no seu fuso horário.
+Desenvolvi um simples e breve código em HTML para um relógio digital, você pode ver o horário UTC e no seu fuso horário.
