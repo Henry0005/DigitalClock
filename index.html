@@ -1,89 +1,400 @@
 <!DOCTYPE html>
-<html>
+<html lang="pt-BR">
 <head>
-    <title>Digital Clock ⏰</title>
-    <style>
-        body {
-            background-color: black;
-            color: white;
-            text-align: center;
-            font-family: Arial, sans-serif;
-            font-size: 18px;
-        }
-        
-        #local-time {
-            font-size: 25px;
-            margin-bottom: 5px;
-            display: flex;
-            flex-direction: column;
-        }
-        
-        .time-label {
-            color: white;
-            font-size: 14px;
-            margin-top: 10px;
-        }
-        
-        #utc-time {
-            font-size: 25px;
-            margin-top: 5px;
-        }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DigitalClock</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: #111;
+      color: white;
+      font-family: 'Courier New', monospace;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
 
-        hr {
-            width: 80%;
-            margin: 20px auto;
-        }
-    </style>
+    .menu-toggle {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      font-size: 1.8rem;
+      background: none;
+      border: none;
+      color: white;
+      cursor: pointer;
+      z-index: 10;
+    }
+
+    .menu-panel {
+      position: absolute;
+      top: 60px;
+      left: 20px;
+      background: #222;
+      padding: 12px;
+      border-radius: 8px;
+      flex-direction: column;
+      gap: 10px;
+      z-index: 9;
+      opacity: 0;
+      transform: translateY(-10px);
+      pointer-events: none;
+      transition: opacity 0.3s ease, transform 0.3s ease;
+    }
+
+    .menu-panel.visible {
+      opacity: 1;
+      transform: translateY(0);
+      pointer-events: auto;
+    }
+
+
+    .menu-panel select {
+      padding: 6px 10px;
+      font-size: 1rem;
+      border-radius: 5px;
+      border: 1px solid #555;
+      background-color: #333;
+      color: white;
+      appearance: none;
+      -webkit-appearance: none;
+      -moz-appearance: none;
+      transition: background 0.3s, color 0.3s;
+    }
+
+    .menu-panel button {
+      padding: 6px 10px;
+      font-size: 1rem;
+      border-radius: 5px;
+      border: none;
+      background: #444;
+      color: white;
+      cursor: pointer;
+      transition: background 0.3s, color 0.3s;
+    }
+
+    .menu-panel button:hover {
+      background: #555;
+    }
+
+    .clock {
+      display: flex;
+      gap: 10px;
+    }
+
+    .digit {
+      position: relative;
+      width: 70px;
+      height: 100px;
+      perspective: 1000px;
+    }
+
+    .card {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      background: #fff;
+      color: #000;
+      font-size: 3.5rem;
+      font-weight: bold;
+      border-radius: 10px;
+      text-align: center;
+      line-height: 100px;
+      box-shadow: inset 0 -2px 2px rgba(0,0,0,0.1);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      backface-visibility: hidden;
+      z-index: 1;
+      opacity: 1;
+      transition: opacity 0.2s ease;
+    }
+
+    .flip-top, .flip-bottom {
+      position: absolute;
+      width: 100%;
+      height: 50%;
+      background: #fff;
+      color: #000;
+      font-size: 3.5rem;
+      font-weight: bold;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      backface-visibility: hidden;
+      overflow: hidden;
+      z-index: 2;
+      pointer-events: none;
+    }
+
+    .flip-top {
+      top: 0;
+      transform-origin: bottom;
+      border-bottom: 1px solid #ccc;
+    }
+
+    .flip-bottom {
+      bottom: 0;
+      transform-origin: top;
+      transform: rotateX(90deg);
+      border-top: 1px solid #ccc;
+    }
+
+    .animate .flip-top {
+      animation: flipTop 0.4s forwards;
+    }
+
+    .animate .flip-bottom {
+      animation: flipBottom 0.4s forwards;
+    }
+
+    @keyframes flipTop {
+      0% { transform: rotateX(0); }
+      100% { transform: rotateX(-90deg); }
+    }
+
+    @keyframes flipBottom {
+      0% { transform: rotateX(90deg); }
+      100% { transform: rotateX(0); }
+    }
+
+    .colon {
+      font-size: 4rem;
+      align-self: center;
+    }
+
+    #clockTitle {
+      position: absolute;
+      top: 90px;
+      text-align: center;
+      font-size: 1.2rem;
+      font-family: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+      font-weight: 500;
+      color: #ddd;
+      width: 100%;
+      display: none;
+      letter-spacing: 0.5px;
+    }
+  </style>
+
 </head>
 <body>
-    <div id="local-time">
-        <div class="time-label">Local Time</div>
-        <div id="local-date"></div>
-        <div id="local-clock"></div>
-    </div>
-    <div id="utc-time">
-        <div class="time-label">UTC Time</div>
-        <div id="utc-date"></div>
-        <div id="utc-clock"></div>
-    </div>
+  <button class="menu-toggle" onclick="toggleMenu()">☰</button>
+  <div class="menu-panel" id="menuPanel">
+    <select id="timezoneSelect">
+      <option value="America/Sao_Paulo">🇧🇷 São Paulo (UTC-3)</option>
+      <option value="America/New_York">🇺🇸 New York (UTC-4)</option>
+      <option value="America/Chicago">🇺🇸 Chicago (UTC-5)</option>
+      <option value="America/Los_Angeles">🇺🇸 Los Angeles (UTC-7)</option>
+      <option value="America/Bogota">🇨🇴 Bogotá (UTC-5)</option>
+      <option value="Europe/Rome">🇮🇹 Roma, Itália (UTC+2)</option>
+      <option value="Atlantic/Reykjavik">🇮🇸 Reykjavik, Islândia (UTC+0)</option>
+      <option value="Europe/Oslo">🇳🇴 Oslo, Noruega (UTC+2)</option>
+      <option value="Europe/Stockholm">🇸🇪 Estocolmo, Suécia (UTC+2)</option>
+      <option value="Europe/Helsinki">🇫🇮 Helsinque, Finlândia (UTC+3)</option>
+      <option value="Europe/Moscow">🇷🇺 Moscou, Rússia (UTC+3)</option>
+      <option value="Europe/Lisbon">🇵🇹 Lisboa (UTC+1)</option>
+      <option value="Europe/London">🇬🇧 Londres (UTC+1)</option>
+      <option value="Europe/Berlin">🇩🇪 Berlim (UTC+2)</option>
+      <option value="Asia/Tokyo">🇯🇵 Tóquio (UTC+9)</option>
+      <option value="Asia/Shanghai">🇨🇳 Xangai (UTC+8)</option>
+      <option value="Asia/Dubai">🇦🇪 Dubai (UTC+4)</option>
+      <option value="Australia/Sydney">🇦🇺 Sydney (UTC+10)</option>
+      <option value="Pacific/Auckland">🇳🇿 Auckland (UTC+12)</option>
+      <option value="Africa/Johannesburg">🇿🇦 Joanesburgo (UTC+2)</option>
+      <option value="UTC">🌍 UTC (UTC+0)</option>
+    </select>
+    <button onclick="toggleFormat()" id="formatBtn">12h</button>
+    <button onclick="toggleFullscreen()">Fullscreen</button>
+    <button onclick="toggleTitle()" id="titleBtn">🕒 Mostrar local</button>
+  </div>
 
-    <hr>
-    <p>Made by Henry_0005</p>
+  <div id="clockTitle">Cidade</div>
+  <div class="clock" id="clock"></div>
 
-    <script>
-        function updateClock() {
-            var now = new Date();
+  <script>
+    const clock = document.getElementById("clock");
+    const timezoneSelect = document.getElementById("timezoneSelect");
+    const formatBtn = document.getElementById("formatBtn");
+    const titleBtn = document.getElementById("titleBtn");
+    const menuPanel = document.getElementById("menuPanel");
+    const clockTitle = document.getElementById("clockTitle");
 
-            var day = now.getDate();
-            var month = now.getMonth() + 1;
-            var year = now.getFullYear();
+    let use24h = false;
+    let showTitle = localStorage.getItem("showTitle") === "true";
+    let currentZone = timezoneSelect.value;
+    let forceRender = true;
 
-            var hours = now.getHours();
-            var minutes = now.getMinutes();
-            var seconds = now.getSeconds();
+    const zoneMap = {
+      "America/Sao_Paulo": "São Paulo, Brasil (UTC-3)",
+      "America/New_York": "New York, EUA (UTC-4)",
+      "America/Chicago": "Chicago, EUA (UTC-5)",
+      "America/Los_Angeles": "Los Angeles, EUA (UTC-7)",
+      "America/Bogota": "Bogotá, Colômbia (UTC-5)",
+      "Europe/Rome": "Roma, Itália (UTC+2)",
+      "Atlantic/Reykjavik": "Reykjavik, Islândia (UTC+0)",
+      "Europe/Oslo": "Oslo, Noruega (UTC+2)",
+      "Europe/Stockholm": "Estocolmo, Suécia (UTC+2)",
+      "Europe/Helsinki": "Helsinque, Finlândia (UTC+3)",
+      "Europe/Moscow": "Moscou, Rússia (UTC+3)",
+      "Europe/Lisbon": "Lisboa, Portugal (UTC+1)",
+      "Europe/London": "Londres, Reino Unido (UTC+1)",
+      "Europe/Berlin": "Berlim, Alemanha (UTC+2)",
+      "Asia/Tokyo": "Tóquio, Japão (UTC+9)",
+      "Asia/Shanghai": "Xangai, China (UTC+8)",
+      "Asia/Dubai": "Dubai, Emirados Árabes (UTC+4)",
+      "Australia/Sydney": "Sydney, Austrália (UTC+10)",
+      "Pacific/Auckland": "Auckland, Nova Zelândia (UTC+12)",
+      "Africa/Johannesburg": "Joanesburgo, África do Sul (UTC+2)",
+      "UTC": "UTC (UTC+0)"
+    };
 
-            var localTime = hours + ":" + addZero(minutes) + ":" + addZero(seconds);
-            var localDate = addZero(day) + "/" + addZero(month) + "/" + year;
+    function toggleMenu() {
+      menuPanel.classList.toggle("visible");
+    }
 
-            var utcTime = new Date().toUTCString();
-            utcTime = utcTime.slice(-12, -4);
+    function toggleFormat() {
+      use24h = !use24h;
+      formatBtn.textContent = use24h ? "24h" : "12h";
+      forceRender = true;
+    }
 
-            document.getElementById("local-clock").innerHTML = localTime;
-            document.getElementById("local-date").innerHTML = localDate;
+    function toggleFullscreen() {
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen();
+      } else {
+        document.exitFullscreen();
+      }
+    }
 
-            document.getElementById("utc-clock").innerHTML = utcTime;
-            document.getElementById("utc-date").innerHTML = localDate;
+    function toggleTitle() {
+      showTitle = !showTitle;
+      localStorage.setItem("showTitle", showTitle);
+      updateTitleDisplay();
+    }
+
+    function updateTitleDisplay() {
+      titleBtn.textContent = showTitle ? "🕒 Ocultar local" : "🕒 Mostrar local";
+      clockTitle.style.display = showTitle ? "block" : "none";
+      if (showTitle) {
+        clockTitle.textContent = (zoneMap[currentZone] || currentZone);
+      }
+    }
+
+    document.addEventListener("click", (e) => {
+      if (!menuPanel.contains(e.target) && !e.target.classList.contains("menu-toggle")) {
+        menuPanel.classList.remove("visible");
+      }
+    });
+
+    timezoneSelect.addEventListener("change", () => {
+      currentZone = timezoneSelect.value;
+      forceRender = true;
+      updateTitleDisplay();
+    });
+
+    function createDigit(char) {
+      const container = document.createElement("div");
+      container.className = "digit";
+      const card = document.createElement("div");
+      card.className = "card";
+      card.textContent = char;
+      container.appendChild(card);
+      return container;
+    }
+
+    function renderStructure(str) {
+      clock.innerHTML = '';
+      str.split('').forEach(char => {
+        if (char === ":") {
+          const colon = document.createElement("div");
+          colon.className = "colon";
+          colon.textContent = ":";
+          clock.appendChild(colon);
+        } else {
+          clock.appendChild(createDigit(char));
         }
+      });
+    }
 
-        function addZero(value) {
-            if (value < 10) {
-                return "0" + value;
-            } else {
-                return value;
-            }
-        }
+    function animateFlip(digit, newChar) {
+      const card = digit.querySelector(".card");
+      const oldChar = card.textContent;
+      if (oldChar === newChar) return;
 
-        setInterval(updateClock, 1000);
-    </script>
+      const flipTop = document.createElement("div");
+      flipTop.className = "flip-top";
+      flipTop.textContent = oldChar;
+
+      const flipBottom = document.createElement("div");
+      flipBottom.className = "flip-bottom";
+      flipBottom.textContent = newChar;
+
+      card.style.opacity = '0';
+      digit.appendChild(flipTop);
+      digit.appendChild(flipBottom);
+      digit.classList.add("animate");
+
+      setTimeout(() => {
+        card.textContent = newChar;
+        card.style.opacity = '1';
+        flipTop.remove();
+        flipBottom.remove();
+        digit.classList.remove("animate");
+      }, 400);
+    }
+
+    function updateDigits(str) {
+      const digits = clock.querySelectorAll(".digit");
+      str.split('').forEach((char, i) => {
+        const digit = digits[i];
+        if (!digit) return;
+        animateFlip(digit, char);
+      });
+    }
+
+    function renderClock() {
+      const now = new Date();
+      const options = {
+        timeZone: currentZone,
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: !use24h
+      };
+
+      const parts = new Intl.DateTimeFormat('en-US', options).formatToParts(now);
+      const hour = parts.find(p => p.type === "hour").value.padStart(2, '0');
+      const minute = parts.find(p => p.type === "minute").value.padStart(2, '0');
+      const second = parts.find(p => p.type === "second").value.padStart(2, '0');
+      const period = parts.find(p => p.type === "dayPeriod")?.value || "";
+
+      const str = use24h ? `${hour}:${minute}:${second}` : `${hour}:${minute}:${second}${period}`;
+
+      const currentChars = Array.from(clock.children)
+        .filter(el => el.classList.contains("digit") || el.classList.contains("colon"))
+        .map(el => el.textContent);
+
+      const expectedChars = str.split('');
+
+      const needRender = forceRender ||
+        currentChars.length !== expectedChars.length ||
+        currentChars.some((char, i) => char !== expectedChars[i]);
+
+      if (needRender) {
+        renderStructure(str);
+        forceRender = false;
+      } else {
+        updateDigits(str);
+      }
+    }
+
+    updateTitleDisplay();
+    setInterval(renderClock, 1000);
+    renderClock();
+  </script>
 </body>
 </html>
