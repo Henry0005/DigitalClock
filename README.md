@@ -1,7 +1,11 @@
-In English 🇬🇧
+## 🇬🇧 English
 
-I've developed a simple and brief HTML code for a digital clock, you can see the time in UTC and in your time zone.
+This project provides a clean and elegant digital clock built with HTML, CSS, and JavaScript — all contained within a single `.html` file.  
+It displays the current time in both **UTC** and the **user-selected time zone**.
 
-Em Português 🇧🇷
+---
 
-Desenvolvi um simples e breve código em HTML para um relógio digital, você pode ver o horário UTC e no seu fuso horário.
+## 🇧🇷 Português
+
+Este projeto apresenta um relógio digital simples e elegante, desenvolvido com HTML, CSS e JavaScript — tudo contido em um único arquivo `.html`.  
+Ele exibe o horário atual tanto em **UTC** quanto no **fuso horário selecionado pelo usuário**.
